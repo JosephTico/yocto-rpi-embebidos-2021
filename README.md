@@ -4,7 +4,7 @@
 
 Compilar biblioteca intermediaria
 
-` $CC -L. -Wall -pthread -o test test.c -lpigpio
+```$CC -L. -Wall -pthread -o test test.c -lpigpio```
 
 Compilar lpigpio:
 
