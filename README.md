@@ -16,6 +16,7 @@ $AR rcs libpigpio.a pigpio.o command.o
 
 
 BBlayers:
-```bitbake-layers create-layer meta-(nombre)
+```
+bitbake-layers create-layer meta-(nombre)
 bitbake-layers add-layer ../(nombre)
 ```
