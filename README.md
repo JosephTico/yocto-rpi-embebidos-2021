@@ -14,14 +14,14 @@ source /opt/poky/3.3.2/environment-setup-cortexa7t2hf-neon-vfpv4-poky-linux-gnue
 
 Compilar biblioteca intermediaria DINÁMICA:
 ```bash
-$CC -L. -Wall -pthread -fpic -o gpio gpio.c -lpigpio
+$CC -L. -Wall -pthread -fpic -o gpio.o gpio.c -lpigpio
 $CC -shared -o libgpio.so gpio.o
 ```
 
 Generar el .o de biblioteca intermediaria ESTÄTICA:
 
 ```bash
-$CC -L. -Wall -pthread -o gpio gpio.c -lpigpio
+$CC -L. -Wall -pthread -o gpio.o gpio.c -lpigpio
 ```
 
 Compilar lpigpio (o algo ESTÁTICO):
