@@ -12,15 +12,16 @@ Inicializar toolchain
 source /opt/poky/3.3.2/environment-setup-cortexa7t2hf-neon-vfpv4-poky-linux-gnueabi
 ```
 
-Generar el .o de biblioteca intermediaria:
+Compilar biblioteca intermediaria DINÁMICA:
+```bash
+$CC -L. -Wall -pthread -fPIC -o gpio gpio.c -lpigpio
+-shared -o libgpio.so gpio.o
+```
+
+Generar el .o de biblioteca intermediaria ESTÄTICA:
 
 ```bash
 $CC -L. -Wall -pthread -o gpio gpio.c -lpigpio
-```
-
-Compilar biblioteca intermediaria DINÁMICA:
-```bash
-#TODO
 ```
 
 Compilar lpigpio (o algo ESTÁTICO):
