@@ -24,7 +24,7 @@ $CC -L. -Wall -pthread -fpic -c -o gpio.o gpio.c
 
 Linkear biblioteca intermediaria DINÁMICA:
 ```bash
-$CC -shared -o libgpio.so gpio.o -lpigpio -lgpio
+$CC -L. -shared -o libgpio.so gpio.o -lpigpio -lgpio
 ```
 
 Compilar .o de biblioteca intermediaria ESTÁTICA (única diferencia: no ocupa el -fpic):
@@ -38,7 +38,7 @@ Compilar lpigpio (o algo ESTÁTICO):
 ```bash
 $CC -O3 -Wall -pthread -fpic -c -o pigpio.o pigpio.c
 $CC -O3 -Wall -pthread -fpic -c -o command.o command.c
-$AR rcs libpigpio.a pigpio.o command.o -lpigpio
+$AR -L. rcs libpigpio.a pigpio.o command.o -lpigpio
 ```
 
 
