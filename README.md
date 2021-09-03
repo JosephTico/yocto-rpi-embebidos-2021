@@ -18,7 +18,7 @@ $CC -L. -Wall -pthread -fpic -o gpio.o gpio.c -lpigpio
 $CC -shared -o libgpio.so gpio.o
 ```
 
-Generar el .o de biblioteca intermediaria ESTÄTICA:
+Generar el .o de biblioteca intermediaria ESTÁTICA (única diferencia: no ocupa el -fpic):
 
 ```bash
 $CC -L. -Wall -pthread -o gpio.o gpio.c -lpigpio
