@@ -1,10 +1,10 @@
-CC = gcc  # C compiler
-CFLAGS = -fPIC -Wall -Wextra -O2 -g  # C flags
+# CC = gcc  # C compiler, use the one from  ENV
+CFLAGS = -fPIC -Wall -O2 -g  # C flags
 LDFLAGS = -shared   # linking flags
 RM = rm -f   # rm command
-TARGET_LIB = libtarget.so  # target lib
+TARGET_LIB = libgpio.so  # target lib
 
-SRCS = main.c src1.c src2.c  # source files
+SRCS = gpio.c pigpio/pigpio.c pigpio/command.c  # source files
 OBJS = $(SRCS:.c=.o)
 
 .PHONY: all
