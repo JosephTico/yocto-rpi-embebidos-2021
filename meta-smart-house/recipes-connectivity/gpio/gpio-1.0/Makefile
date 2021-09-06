@@ -1,6 +1,6 @@
 # CC = gcc  # C compiler, use the one from  ENV
-CFLAGS = -fPIC -Wall -O2 -g  # C flags
-LDFLAGS = -shared -Wl,-soname,libgpio.so.1  # linking flags
+CFLAGS = -fPIC -Wall -O2 -g # C flags
+LDFLAGS = -shared -Wl,-soname,libgpio.so.1 -pthread # linking flags
 RM = rm -f   # rm command
 TARGET_LIB = libgpio.so.1.0  # target lib
 
