@@ -7,6 +7,11 @@ Inicializar ambiente
 source oe-init-build-env rpi2
 ```
 
+Construir imagen
+```bash
+bitbake rpi-basic-image
+```
+
 Inicializar toolchain
 ```bash
 source /opt/poky/3.3.2/environment-setup-cortexa7t2hf-neon-vfpv4-poky-linux-gnueabi
