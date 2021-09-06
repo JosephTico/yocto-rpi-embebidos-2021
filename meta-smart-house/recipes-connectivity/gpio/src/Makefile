@@ -2,7 +2,7 @@
 CFLAGS = -fPIC -Wall -O2 -g  # C flags
 LDFLAGS = -shared   # linking flags
 RM = rm -f   # rm command
-TARGET_LIB = libgpio.so  # target lib
+TARGET_LIB = libgpio.so.1.0  # target lib
 
 SRCS = gpio.c pigpio/pigpio.c pigpio/command.c  # source files
 OBJS = $(SRCS:.c=.o)
