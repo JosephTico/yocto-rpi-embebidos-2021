@@ -14,17 +14,16 @@ do_compile() {
 }
 
 do_install() {
+  install -d ${D}${includedir}
 
-install -d ${D}${includedir}
+  # install the header file in /usr/include with default permissions
+  install ${S}/gpio.h ${D}${includedir}
 
-# install the header file in /usr/include with default permissions
-install ${S}/gpio.h ${D}${includedir}
+  # add the /usr/lib folder to the sysroot for this recipe, to be
+  # added to the final rootfs
+  install -d ${D}${libdir}
 
-# add the /usr/lib folder to the sysroot for this recipe, to be
-# added to the final rootfs
-install -d ${D}${libdir}
-
-# install the prebuilt library in /usr/lib with default permissions
-oe_soinstall ${S}/libgpio.so.${PV} ${D}${libdir}
+  # install the prebuilt library in /usr/lib with default permissions
+  oe_soinstall ${S}/libgpio.so.${PV} ${D}${libdir}
 
 }
