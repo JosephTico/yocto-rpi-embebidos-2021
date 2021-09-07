@@ -18,6 +18,7 @@ do_install() {
 
   # install the header file in /usr/include with default permissions
   install ${S}/gpio.h ${D}${includedir}
+  install ${S}/pigpio/pigpio.h ${D}${includedir}
 
   # add the /usr/lib folder to the sysroot for this recipe, to be
   # added to the final rootfs

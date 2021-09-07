@@ -4,7 +4,7 @@
 #include <gpio.h>
 #define OUTPUT 0
 #define INPUT 1
-const int pins[] = {29, 31, 33, 35, 37};
+const int pins[] = {5, 6, 13, 19, 26};
 
 void intHandler(int dummy)
 {
