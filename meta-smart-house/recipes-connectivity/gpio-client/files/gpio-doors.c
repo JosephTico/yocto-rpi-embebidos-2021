@@ -21,8 +21,9 @@ void intHandler(int dummy)
 }
 
 void updateStates(){
+  fseek(fptr, 0, SEEK_SET);
   for (int i = 0; i < 4; ++i){
-    fprintf(fptr,"%d",doors_states[i]);
+    fprintf(fptr,"%d ",doors_states[i]);
   }
 }
 
@@ -44,13 +45,13 @@ void door1StateChange(int gpio, int level, uint32_t tick)
 void door2StateChange(int gpio, int level, uint32_t tick)
 {
   if (level == 1) {
-    int actual_state = doors_states[0];
+    int actual_state = doors_states[1];
     if (actual_state == 1){ 
       printf("DOOR 2: CLOSED");
-      doors_states[0] = 0;
+      doors_states[1] = 0;
     }else{
       printf("DOOR 2: OPEN");
-      doors_states[0] = 1;
+      doors_states[1] = 1;
     }
     updateStates();
     printf("GPIO is now on %d\n", level);
@@ -59,13 +60,13 @@ void door2StateChange(int gpio, int level, uint32_t tick)
 void door3StateChange(int gpio, int level, uint32_t tick)
 {
   if (level == 1) {
-    int actual_state = doors_states[0];
+    int actual_state = doors_states[2];
     if (actual_state == 1){ 
       printf("DOOR 3: CLOSED");
-      doors_states[0] = 0;
+      doors_states[2] = 0;
     }else{
       printf("DOOR 3: OPEN");
-      doors_states[0] = 1;
+      doors_states[2] = 1;
     }
     updateStates();
     printf("GPIO is now on %d\n", level);
@@ -74,13 +75,13 @@ void door3StateChange(int gpio, int level, uint32_t tick)
 void door4StateChange(int gpio, int level, uint32_t tick)
 {
   if (level == 1) {
-    int actual_state = doors_states[0];
+    int actual_state = doors_states[3];
     if (actual_state == 1){ 
       printf("DOOR 4: CLOSED");
-      doors_states[0] = 0;
+      doors_states[3] = 0;
     }else{
       printf("DOOR 4: OPEN");
-      doors_states[0] = 1;
+      doors_states[3] = 1;
     }
     updateStates();
     printf("GPIO is now on %d\n", level);

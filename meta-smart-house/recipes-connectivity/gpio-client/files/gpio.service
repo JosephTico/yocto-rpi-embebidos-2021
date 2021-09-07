@@ -1,0 +1,8 @@
+[Unit]
+Description=Startup script for gpio client/doors
+
+[Service]
+ExecStart=/usr/bin/gpio-doors
+
+[Install]
+WantedBy=multi-user.target
