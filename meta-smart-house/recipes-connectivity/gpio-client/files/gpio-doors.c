@@ -118,18 +118,14 @@ int main(void)
 
   signal(SIGINT, intHandler);
 
+  printf("Starting Gpio...\n");
   pi = pigpio_start(optHost, optPort);
 
-  // int status = gpioInitialise();
-
-  set_glitch_filter(pi, button_door1, 1000);
-  set_glitch_filter(pi, button_door2, 1000);
-  set_glitch_filter(pi, button_door3, 1000);
-  set_glitch_filter(pi, button_door4, 1000);
-  // gpioGlitchFilter(button_door1, 800);
-  // gpioGlitchFilter(button_door2, 800);
-  // gpioGlitchFilter(button_door3, 800);
-  // gpioGlitchFilter(button_door4, 800);
+  // set_glitch_filter(pi, button_door1, 1000);
+  // set_glitch_filter(pi, button_door2, 1000);
+  // set_glitch_filter(pi, button_door3, 1000);
+  // set_glitch_filter(pi, button_door4, 1000);
+ 
 
   if (pi >= 0)
   {
@@ -150,10 +146,10 @@ int main(void)
     // gpioSetMode(button_door3, PI_INPUT);
     // gpioSetMode(button_door4, PI_INPUT);
 
-    callback(pi, button_door1, RISING_EDGE, door1StateChange);
-    callback(pi, button_door2, RISING_EDGE, door2StateChange);
-    callback(pi, button_door3, RISING_EDGE, door3StateChange);
-    callback(pi, button_door4, RISING_EDGE, door4StateChange);
+    callback(pi, button_door1, EITHER_EDGE, door1StateChange);
+    callback(pi, button_door2, EITHER_EDGE, door2StateChange);
+    callback(pi, button_door3, EITHER_EDGE, door3StateChange);
+    callback(pi, button_door4, EITHER_EDGE, door4StateChange);
     // gpioSetAlertFunc(button_door1, door1StateChange);
     // gpioSetAlertFunc(button_door2, door2StateChange);
     // gpioSetAlertFunc(button_door3, door3StateChange);

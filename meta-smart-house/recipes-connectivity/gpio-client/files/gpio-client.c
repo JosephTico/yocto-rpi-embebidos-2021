@@ -4,7 +4,7 @@
 #include <pigpiod_if2.h>
 #define OUTPUT 0
 #define INPUT 1
-const int pins[] = {5, 6, 13, 19, 26};
+const int led_pins[] = {5, 6, 13, 19, 26};
 
 char *optHost = NULL;
 char *optPort = NULL;
@@ -20,7 +20,7 @@ void intHandler(int dummy)
 
 int ledToPin(int led)
 {
-  return pins[led - 1];
+  return led_pins[led - 1];
 }
 
 void ledOn(int led, int pin)
@@ -39,6 +39,15 @@ void ledOff(int led, int pin)
   // pinMode(pin, OUTPUT);
   // digitalWrite(pin, 0);
   printf("Led %d is OFF\n", led);
+}
+
+void readDoors(){
+  printf("Door Status: %d %d %d %d", 
+    gpio_read(pi, 12),
+    gpio_read(pi, 16),
+    gpio_read(pi, 20),
+    gpio_read(pi, 21)
+  );
 }
 
 int main(int argc, char *argv[])
@@ -67,6 +76,9 @@ int main(int argc, char *argv[])
         break;
       case 'f':
         ledOff(led, ledToPin(led));
+        break;
+      case 'r':
+        readDoors();
         break;
       default:
         fprintf(stderr, "Usage: %s [o/f/r] [led]\n", argv[0]);
