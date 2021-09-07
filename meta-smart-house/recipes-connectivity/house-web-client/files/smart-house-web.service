@@ -4,7 +4,8 @@ Description=Startup script for gpio client/doors
 [Service]
 Restart=on-failure
 RestartSec=3s
-ExecStart=/usr/bin/gpio-doors 
+WorkingDirectory=/opt/smart-house-web
+ExecStart=/usr/bin/node /opt/smart-house-web/index.js
 
 [Install]
 WantedBy=multi-user.target

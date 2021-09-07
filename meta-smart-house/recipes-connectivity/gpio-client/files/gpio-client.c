@@ -1,15 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <gpio.h>
+#include <pigpiod_if2.h>
 #define OUTPUT 0
 #define INPUT 1
 const int pins[] = {5, 6, 13, 19, 26};
 
+char *optHost = NULL;
+char *optPort = NULL;
+int pi = -1;
+
 void intHandler(int dummy)
 {
   printf("Closing Gpio...\n");
-  endGpio();
+  pigpio_stop(pi);
+  // endGpio();
   exit(0);
 }
 
@@ -20,15 +25,19 @@ int ledToPin(int led)
 
 void ledOn(int led, int pin)
 {
-  pinMode(pin, OUTPUT);
-  digitalWrite(pin, 1);
+  set_mode(pi, pin, OUTPUT);
+  gpio_write(pi, pin, 1);
+  // pinMode(pin, OUTPUT);
+  // digitalWrite(pin, 1);
   printf("Led %d is ON\n", led);
 }
 
 void ledOff(int led, int pin)
 {
-  pinMode(pin, OUTPUT);
-  digitalWrite(pin, 0);
+  set_mode(pi, pin, OUTPUT);
+  gpio_write(pi, pin, 0);
+  // pinMode(pin, OUTPUT);
+  // digitalWrite(pin, 0);
   printf("Led %d is OFF\n", led);
 }
 
@@ -36,14 +45,15 @@ int main(int argc, char *argv[])
 {
   signal(SIGINT, intHandler);
   printf("Starting gpio...\n");
-  startGpio();
+  // startGpio();
+  pi = pigpio_start(optHost, optPort);
 
   if (argc != 3)
   {
     fprintf(stderr, "Usage: %s [n/f/r] [led number]\n", argv[0]);
     exit(EXIT_FAILURE);
   }
-  else
+  else if (pi >= 0)
   {
     char *a = argv[2];
     int led = atoi(a);
@@ -69,28 +79,12 @@ int main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
   }
+  else
+  {
+    fprintf(stderr, "Error on pigpio_start(): pi < 0\n");
+  }
   printf("Closing Gpio...\n");
-  endGpio();
+  pigpio_stop(pi);
+  // endGpio();
   return 0;
 }
-
-// int main()
-// {
-
-//   signal(SIGINT, intHandler);
-
-//   printf("starting gpio\n");
-//   startGpio();
-//   printf("set 18 output\n");
-//   pinMode(18, OUTPUT);
-//   printf("set 2 input\n");
-//   pinMode(2, INPUT);
-//   printf("writting in 18 \n");
-//   digitalWrite(18, 1);
-//   printf("reading 2\n");
-//   digitalRead(2);
-//   printf("lets blink madafakas\n");
-//   blink(18, 0.5, 30);
-//   printf("byeee\n");
-//   endGpio();
-// }

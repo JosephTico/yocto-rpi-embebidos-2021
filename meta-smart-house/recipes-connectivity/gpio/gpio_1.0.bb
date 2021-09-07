@@ -6,25 +6,15 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 SRC_URI += " file://."
 
+inherit systemd
+SYSTEMD_AUTO_ENABLE = "enable"
+SYSTEMD_SERVICE_${PN} = "pigpiod.service"
+
 S = "${WORKDIR}"
-TARGET_CC_ARCH += "${LDFLAGS}"
  
-do_compile() {
-  oe_runmake
-}
+inherit cmake
 
-do_install() {
-  install -d ${D}${includedir}
-
-  # install the header file in /usr/include with default permissions
-  install ${S}/gpio.h ${D}${includedir}
-  install ${S}/pigpio/pigpio.h ${D}${includedir}
-
-  # add the /usr/lib folder to the sysroot for this recipe, to be
-  # added to the final rootfs
-  install -d ${D}${libdir}
-
-  # install the prebuilt library in /usr/lib with default permissions
-  oe_soinstall ${S}/libgpio.so.${PV} ${D}${libdir}
-
+do_install_append () {
+  install -d ${D}/${systemd_unitdir}/system
+  install -m 0644 ${WORKDIR}/pigpiod.service ${D}/${systemd_unitdir}/system
 }
