@@ -12,14 +12,14 @@ let leds = ref([
 let polling = null;
 
 const reload = async () => {
-  const response = await fetch("http://192.168.0.109/doors");
+  const response = await fetch("/doors");
   const data = await response.json();
   doors.value = data;
 };
 
 const sendLedData = async () => {
   // post to server
-  const url = "http://192.168.0.109/leds";
+  const url = "/leds";
   const response = await fetch(url, {
     method: "POST",
     headers: {
