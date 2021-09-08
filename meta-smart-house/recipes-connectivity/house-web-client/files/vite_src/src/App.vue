@@ -52,6 +52,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <img src="./assets/casita.svg" alt="My casita" />
   <img alt="Vue logo" src="./assets/logo.png" />
   <br />
   Doors: {{ doors }}<br />
