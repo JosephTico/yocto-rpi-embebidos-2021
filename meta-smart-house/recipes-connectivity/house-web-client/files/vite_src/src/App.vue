@@ -54,6 +54,10 @@ onBeforeUnmount(() => {
 <template>
   <div class="graphic">
     <img src="./assets/casita.svg" alt="My casita" />
+    <div class="door" id="d1"></div>
+    <div class="door2" id="d2"></div>
+    <div class="door2" id="d3"></div>
+    <div class="door horizontal" id="d4"></div>
     <label class="switch" id="s1">
       <input type="checkbox" v-model="leds[0].on" />
       <span class="slider round"></span>
@@ -169,18 +173,24 @@ input:checked + .slider:before {
 
 .graphic{
   position: relative;
+  max-height: 90vh;
+}
+
+.graphic img {
+  max-width: 100%;
+  max-height: 100%;
 }
 
 #s1{
   position: absolute;
   top: 25%;
-  left: 28%;
+  left: 22%;
 }
 
 #s2{
   position: absolute;
   top: 70%;
-  left: 28%;
+  left: 22%;
 }
 
 #s3{
@@ -192,7 +202,7 @@ input:checked + .slider:before {
 #s4{
   position: absolute;
   top: 40%;
-  left: 57%;
+  left: 59%;
 }
 
 #s5{
@@ -200,6 +210,71 @@ input:checked + .slider:before {
   top: 10%;
   left: 57%;
 }
+
+.door:hover {
+    background: green;
+    transform: rotate(-90deg);
+}
+.door2:hover {
+    background: green;
+    transform: rotate(90deg);
+}
+.door.horizontal:hover {
+    background: green;
+    transform: rotate(90deg);
+}
+.door.horizontal {
+   background: #000;
+    width: 5vw;
+    height: 0.5vw;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: ease 1s;
+    transform-origin: 100% 0%;
+    background: red;
+}
+.door {
+    background: #000;
+    width: 0.5vw;
+    height: 5vw;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: ease 1s;
+    transform-origin: 0% 100%;
+    background: red;
+}
+.door2 {
+    background: #000;
+    width: 0.5vw;
+    height: 5vw;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: ease 1s;
+    transform-origin: 100% 0%;
+    background: red;
+}
+
+#d1 {
+  left: 38.3vw;
+  top: 11.5vw
+}
+#d2 {
+  left: 38.3vw;
+  top: 21.2vw;
+ 
+}
+#d3 {
+  left: 67.0vw;
+  top: 2.5vw
+}
+#d4 {
+  left: 42vw;
+  top: 36.1vw
+}
+
 
 
 
