@@ -44,7 +44,7 @@ const insertPhoto = async () => {
     div.appendChild(img);
   };
 
-  img.src = '/camera';
+  img.src = '/camera?t=' + new Date().getTime();
 };
 
 function set_interval() {
@@ -67,9 +67,9 @@ onBeforeUnmount(() => {
   <div class="graphic">
     <img src="./assets/casita.svg" alt="My casita" />
     <div id="camera" class="glowing" v-on:click="insertPhoto"></div>
-    <div class="door" id="d1" v-bind:class="{ active: doors[0] }"></div>
+    <div class="door" id="d1" v-bind:class="{ active: doors[2] }"></div>
     <div class="door2" id="d2" v-bind:class="{ active: doors[1] }"></div>
-    <div class="door2" id="d3" v-bind:class="{ active: doors[2] }"></div>
+    <div class="door2" id="d3" v-bind:class="{ active: doors[0] }"></div>
     <div class="door horizontal" id="d4" v-bind:class="{ active: doors[3] }"></div>
     <label class="switch" id="s1">
       <input type="checkbox" v-model="leds[0].on" />
@@ -84,11 +84,11 @@ onBeforeUnmount(() => {
       <span class="slider round"></span>
     </label>
     <label class="switch" id="s4">
-      <input type="checkbox" v-model="leds[3].on" />
+      <input type="checkbox" v-model="leds[4].on" />
       <span class="slider round"></span>
     </label>
     <label class="switch" id="s5">
-      <input type="checkbox" v-model="leds[4].on" />
+      <input type="checkbox" v-model="leds[3].on" />
       <span class="slider round"></span>
     </label>
   </div>
