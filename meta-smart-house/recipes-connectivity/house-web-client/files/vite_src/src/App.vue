@@ -52,20 +52,45 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <img src="./assets/casita.svg" alt="My casita" />
-  <img alt="Vue logo" src="./assets/logo.png" />
+  <div class="graphic">
+    <img src="./assets/casita.svg" alt="My casita" />
+    <label class="switch" id="s1">
+      <input type="checkbox" v-model="leds[0].on" />
+      <span class="slider round"></span>
+    </label>
+    <label class="switch" id="s2">
+      <input type="checkbox" v-model="leds[1].on" />
+      <span class="slider round"></span>
+    </label>
+    <label class="switch" id="s3">
+      <input type="checkbox" v-model="leds[2].on" />
+      <span class="slider round"></span>
+    </label>
+    <label class="switch" id="s4">
+      <input type="checkbox" v-model="leds[3].on" />
+      <span class="slider round"></span>
+    </label>
+    <label class="switch" id="s5">
+      <input type="checkbox" v-model="leds[4].on" />
+      <span class="slider round"></span>
+    </label>
+  </div>
+  
+
   <br />
+  <!--ul id="example-1">
   Doors: {{ doors }}<br />
-  <ul id="example-1">
+  
     <li v-for="led in leds" :key="led.id">
       {{ led.id }}: {{ led.on ? "on" : "off" }}
-      <!-- Rounded switch -->
+      
       <label class="switch">
         <input type="checkbox" v-model="led.on" />
         <span class="slider round"></span>
       </label>
     </li>
   </ul>
+  < Rounded switch -->
   <button v-on:click="modifyAllLeds(false)">Turn off all</button>
   <button v-on:click="modifyAllLeds(true)">Turn on all</button>
 </template>
@@ -141,4 +166,41 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+
+.graphic{
+  position: relative;
+}
+
+#s1{
+  position: absolute;
+  top: 25%;
+  left: 28%;
+}
+
+#s2{
+  position: absolute;
+  top: 70%;
+  left: 28%;
+}
+
+#s3{
+  position: absolute;
+  top: 76%;
+  left: 57%;
+}
+
+#s4{
+  position: absolute;
+  top: 40%;
+  left: 57%;
+}
+
+#s5{
+  position: absolute;
+  top: 10%;
+  left: 57%;
+}
+
+
+
 </style>
