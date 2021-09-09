@@ -67,7 +67,7 @@ app.post('/leds', (req, res) => {
 
 
 app.get('/camera', (_req, res) => {
-    exec("fswebcam /opt/house-smart-web/dist/assets/camera.jpg", (err, stdout, stderr) => {
+    exec("LD_PRELOAD=/usr/lib/libv4l/v4l1compat.so fswebcam --flip v --title 'PATIO WEBCAM' --font /opt/smart-house-web/dist/assets/webcam/arial.ttf /opt/smart-house-web/dist/assets/camera.jpg", (err, stdout, stderr) => {
         if (err) console.error(err);
         res.redirect('/assets/camera.jpg')
     });

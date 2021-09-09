@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onBeforeUnmount, watch } from "vue";
 
-let doors = ref([false, false, false, false]);
+let doors = ref([true, false, false, false]);
 let leds = ref([
   { id: 1, on: false },
   { id: 2, on: false },
