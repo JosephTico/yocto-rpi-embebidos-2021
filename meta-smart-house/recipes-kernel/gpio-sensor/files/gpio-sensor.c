@@ -11,11 +11,19 @@
  * From TLDP.org's LKMPG book.
  */
 
+#include <linux/cdev.h>
+#include <linux/device.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/fs.h>
 #include <asm/uaccess.h> /* for put_user */
+#include <linux/gpio.h>
+#include <linux/interrupt.h> // Required for the IRQ code
 
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Joseph Vargas");                                 ///< The author -- visible when you use modinfo
+MODULE_DESCRIPTION("A simple Linux driver for a GPIO sensor."); ///< The description -- see modinfo
+MODULE_VERSION("0.1");
 /*
  * Prototypes - this would normally go in a .h file
  */
@@ -28,8 +36,19 @@ static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 
 #define SUCCESS 0
-#define DEVICE_NAME "gputo"
+#define DEVICE_NAME "gpio-sensor"
 #define BUF_LEN 80
+
+static int major = -1;
+static struct cdev mycdev;
+static struct class *myclass = NULL;
+
+// GPIO definitions
+#define GPIO_OUTPUT 1
+#define GPIO_INPUT 0
+#define GPIO_PIN 4
+
+static unsigned int irqNumber;
 
 /*
  * Global variables are declared as static, so are global within the file.
@@ -47,26 +66,78 @@ static struct file_operations fops = {
     .release = device_release};
 
 /*
+ * This function is called when cleaning the module to remove the device file
+ */
+static void cleanup(int device_created)
+{
+  if (device_created)
+  {
+    device_destroy(myclass, major);
+    cdev_del(&mycdev);
+  }
+  if (myclass)
+    class_destroy(myclass);
+  if (major != -1)
+    unregister_chrdev_region(major, 1);
+}
+
+static irq_handler_t gpio_irq_handler(unsigned int irq, void *dev_id, struct pt_regs *regs)
+{
+  printk(KERN_INFO "GPIO_TEST: Interrupt! (MOTION SENSOR state is %d)\n", gpio_get_value(GPIO_PIN));
+  return (irq_handler_t)IRQ_HANDLED; // Announce that the IRQ has been handled correctly
+}
+
+// Initialize pointers: performs memory mapping, exits if mapping fails
+void gpio_driver_init(void)
+{
+  int result = 0;
+
+  gpio_request(GPIO_PIN, "sysfs"); // Set up the gpio sensor
+  gpio_direction_input(GPIO_PIN);  // Set the GPIO to be an input
+  gpio_export(GPIO_PIN, false);    // Causes gpio115 to appear in /sys/class/gpio
+
+  // Perform a quick test to see that the button is working as expected on LKM load
+  printk(KERN_INFO "GPIO_TEST: The button state is currently: %d\n", gpio_get_value(GPIO_PIN));
+
+  // GPIO numbers and IRQ numbers are not the same! This function performs the mapping for us
+  irqNumber = gpio_to_irq(GPIO_PIN);
+  printk(KERN_INFO "GPIO_TEST: The button is mapped to IRQ: %d\n", irqNumber);
+
+  // This next call requests an interrupt line
+  result = request_irq(irqNumber,                       // The interrupt number requested
+                       (irq_handler_t)gpio_irq_handler, // The pointer to the handler function below
+                       IRQF_TRIGGER_RISING,             // Interrupt on rising edge (button press, not release)
+                       "gpio_irq_handler",              // Used in /proc/interrupts to identify the owner
+                       NULL);                           // The *dev_id for shared interrupt lines, NULL is okay
+
+  printk(KERN_INFO "GPIO_TEST: The interrupt request result is: %d\n", result);
+}
+
+/*
  * This function is called when the module is loaded
  */
 int init_module(void)
 {
-  Major = register_chrdev(0, DEVICE_NAME, &fops);
+  int device_created = 0;
 
-  if (Major < 0)
-  {
-    printk(KERN_ALERT "Registering char device failed with %d\n", Major);
-    return Major;
-  }
-
-  printk(KERN_INFO "I was assigned major number %d. To talk to\n", Major);
-  printk(KERN_INFO "the driver, create a dev file with\n");
-  printk(KERN_INFO "'mknod /dev/%s c %d 0'.\n", DEVICE_NAME, Major);
-  printk(KERN_INFO "Try various minor numbers. Try to cat and echo to\n");
-  printk(KERN_INFO "the device file.\n");
-  printk(KERN_INFO "Remove the device file and module when done.\n");
-
-  return SUCCESS;
+  /* cat /proc/devices */
+  if (alloc_chrdev_region(&major, 0, 1, DEVICE_NAME "_proc") < 0)
+    goto error;
+  /* ls /sys/class */
+  if ((myclass = class_create(THIS_MODULE, DEVICE_NAME "_sys")) == NULL)
+    goto error;
+  /* ls /dev/ */
+  if (device_create(myclass, NULL, major, NULL, DEVICE_NAME) == NULL)
+    goto error;
+  device_created = 1;
+  cdev_init(&mycdev, &fops);
+  if (cdev_add(&mycdev, major, 1) == -1)
+    goto error;
+  gpio_driver_init();
+  return 0;
+error:
+  cleanup(device_created);
+  return -1;
 }
 
 /*
@@ -77,7 +148,11 @@ void cleanup_module(void)
   /*
    * Unregister the device
    */
-  unregister_chrdev(Major, DEVICE_NAME);
+  cleanup(1);
+
+  free_irq(irqNumber, NULL); // Free the IRQ number, no *dev_id required in this case
+  gpio_unexport(GPIO_PIN);   // Unexport the Button GPIO
+  gpio_free(GPIO_PIN);       // Free the LED GPIO
 }
 
 /*
@@ -90,13 +165,11 @@ void cleanup_module(void)
  */
 static int device_open(struct inode *inode, struct file *filp)
 {
-  static int counter = 0;
-
   if (Device_Open)
     return -EBUSY;
 
   Device_Open++;
-  sprintf(msg, "I already told you %d times Hello world!\n", counter++);
+  sprintf(msg, "%d\n", gpio_get_value(GPIO_PIN));
   msg_Ptr = msg;
   /*
    * TODO: comment out the line below to have some fun!
