@@ -6,6 +6,8 @@ const fs = require('fs');
 const app = express();
 const port = 80;
 
+const CAMERA_DIR = "/opt/smart-house-web/dist/assets/cam";
+
 app.use(express.json()); //Used to parse JSON bodies
 app.use(express.static('dist'))
 
@@ -40,38 +42,52 @@ app.use((req, res, next) => {
 })
 
 
-// get doors
-app.get('/doors', (_req, res) => {
-    exec("gpio-client r 4", (err, stdout, stderr) => {
+
+app.get('/gpio', (_req, res) => {
+    exec("cat /dev/gpio-sensor", (err, stdout, stderr) => {
         if (err) console.error(err);
         if (stderr) console.error(stderr);
-        res.send(stdout.trim().replace(/\D/g, '').split('').map((m) => m == "1"));
-
+        res.send(stdout.trim());
     });
 });
 
-// post leds
-app.post('/leds', (req, res) => {
-    // return 400 unless leds
-    if (Object.keys(req.body).length === 0) {
-        res.status(400).send('No leds JSON in body');
-        return;
+// convert unix timestamp to human readable date
+function timestampToDate(timestamp) {
+    let date = new Date(timestamp * 1000);
+    return date.toLocaleString();
+}
+
+// convert filename (unix timestamp).jpg to human readable date
+function filenameToDate(filename) {
+    let timestamp = filename.split('.')[0];
+    return timestampToDate(timestamp);
+}
+
+// list all files in /opt/smart-house-web/assets/cam directory as json
+app.get('/cam', (_req, res) => {
+    if (!fs.existsSync(CAMERA_DIR)) {
+        fs.mkdirSync(CAMERA_DIR, { recursive: true });
     }
-    // extract leds from body
-    const leds = req.body;
-    leds.forEach((led, index) => {
-        exec(`gpio-client ${led.on ? "n" : "f"} ${led.id}`);
+    fs.readdir(CAMERA_DIR, (err, files) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send(err);
+        } else {
+            // exclude .keep from files list
+            files = files.filter(f => f.indexOf('.keep') === -1);
+            // filter files created in the last 3 seconds
+            files = files.filter(f => (Date.now() - fs.statSync(CAMERA_DIR + '/' + f).mtimeMs) > 3000);
+            res.send(files.map((f) => {
+                return {
+                    name: f,
+                    time: filenameToDate(f),
+                    url: `/assets/cam/${f}`
+                }
+            }));
+        }
     });
-    res.sendStatus(200);
 });
 
-
-app.get('/camera', (_req, res) => {
-    exec("LD_PRELOAD=/usr/lib/libv4l/v4l1compat.so fswebcam --flip v --title 'PATIO WEBCAM' --font /opt/smart-house-web/dist/assets/webcam/arial.ttf /opt/smart-house-web/dist/assets/camera.jpg", (err, stdout, stderr) => {
-        if (err) console.error(err);
-        res.redirect('/assets/camera.jpg?t=' + new Date().getTime())
-    });
-});
 
 
 app.get('/hello', (req, res) => {

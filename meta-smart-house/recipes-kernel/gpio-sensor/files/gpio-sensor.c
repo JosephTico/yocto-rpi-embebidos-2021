@@ -19,6 +19,7 @@
 #include <asm/uaccess.h> /* for put_user */
 #include <linux/gpio.h>
 #include <linux/interrupt.h> // Required for the IRQ code
+#include <linux/workqueue.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Joseph Vargas");                                 ///< The author -- visible when you use modinfo
@@ -49,6 +50,7 @@ static struct class *myclass = NULL;
 #define GPIO_PIN 4
 
 static unsigned int irqNumber;
+static struct workqueue_struct *queue;
 
 /*
  * Global variables are declared as static, so are global within the file.
@@ -81,9 +83,39 @@ static void cleanup(int device_created)
     unregister_chrdev_region(major, 1);
 }
 
+static void do_webcam(struct work_struct *work)
+{
+
+  printk(KERN_INFO "WORKQUEUE: Starting webcam worker\n");
+
+  struct subprocess_info *sub_info;
+  char *argv[] = {"/bin/bash",
+                  "-c",
+                  "LD_PRELOAD=/usr/lib/libv4l/v4l1compat.so /usr/bin/fswebcam --flip v --title 'MOTION DETECTED' --font /opt/smart-house-web/dist/assets/webcam/arial.ttf /opt/smart-house-web/dist/assets/cam/$(date +%s).jpg",
+                  NULL};
+  static char *envp[] = {
+      "HOME=/",
+      "TERM=linux",
+      "PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL};
+
+  sub_info = call_usermodehelper_setup(argv[0], argv, envp, GFP_ATOMIC, NULL, NULL, NULL);
+
+  if (sub_info == NULL)
+    printk(KERN_ERR "ERROR: Can't execute user-mode script.\n");
+
+  call_usermodehelper_exec(sub_info, UMH_WAIT_PROC);
+
+  printk(KERN_INFO "WORKQUEUE: Finishing webcam worker\n");
+}
+
+DECLARE_WORK(webcam_work, do_webcam);
+
 static irq_handler_t gpio_irq_handler(unsigned int irq, void *dev_id, struct pt_regs *regs)
 {
   printk(KERN_INFO "GPIO_TEST: Interrupt! (MOTION SENSOR state is %d)\n", gpio_get_value(GPIO_PIN));
+
+  queue_work(queue, &webcam_work);
+
   return (irq_handler_t)IRQ_HANDLED; // Announce that the IRQ has been handled correctly
 }
 
@@ -134,6 +166,7 @@ int init_module(void)
   if (cdev_add(&mycdev, major, 1) == -1)
     goto error;
   gpio_driver_init();
+  queue = create_singlethread_workqueue("gpio_workqueue");
   return 0;
 error:
   cleanup(device_created);
@@ -153,6 +186,9 @@ void cleanup_module(void)
   free_irq(irqNumber, NULL); // Free the IRQ number, no *dev_id required in this case
   gpio_unexport(GPIO_PIN);   // Unexport the Button GPIO
   gpio_free(GPIO_PIN);       // Free the LED GPIO
+
+  cancel_work_sync(&webcam_work);
+  destroy_workqueue(queue);
 }
 
 /*
